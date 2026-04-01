@@ -1,0 +1,22 @@
+services:
+  catalog:
+    build: .
+    container_name: dc-gallery-catalog
+    restart: unless-stopped
+    ports:
+      - "8930:8000"
+    environment:
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-changeme}
+      - DB_PATH=/data/catalog.db
+    volumes:
+      - catalog-data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  catalog-data:
+    driver: local

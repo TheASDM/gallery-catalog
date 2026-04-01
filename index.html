@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Danielle Cowdrey Art — Product Catalog</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --ink:#1a1a1a;
+  --cream:#faf8f5;
+  --warm-white:#fff9f4;
+  --muted:#8a8580;
+  --accent:#c44b2b;
+  --gold:#b8943e;
+  --border:rgba(0,0,0,.08);
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'DM Sans','Helvetica Neue',sans-serif;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:var(--sans);color:var(--ink);background:var(--cream);line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* HEADER */
+.header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.5rem 3rem;border-bottom:1px solid var(--border);
+  background:var(--warm-white);position:sticky;top:0;z-index:100;
+  backdrop-filter:blur(12px);
+}
+.header img{height:48px;width:auto}
+.header-tag{font-family:var(--serif);font-size:.95rem;color:var(--muted);letter-spacing:.04em;font-style:italic}
+
+/* HERO */
+.hero{
+  display:grid;grid-template-columns:1fr 1fr;min-height:520px;
+  overflow:hidden;
+}
+.hero-text{
+  display:flex;flex-direction:column;justify-content:center;
+  padding:4rem 3.5rem;background:var(--ink);color:#fff;
+}
+.hero-text h1{
+  font-family:var(--serif);font-size:3.2rem;font-weight:400;
+  line-height:1.15;margin-bottom:1.2rem;letter-spacing:-.01em;
+}
+.hero-text h1 em{font-style:italic;color:var(--gold)}
+.hero-text p{font-size:.95rem;color:rgba(255,255,255,.65);max-width:400px;line-height:1.7}
+.hero-img{position:relative;overflow:hidden}
+.hero-img img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* SECTION */
+.catalog-section{padding:4rem 3rem}
+.catalog-section + .catalog-section{border-top:1px solid var(--border)}
+
+.section-header{
+  display:grid;grid-template-columns:1fr auto;align-items:end;
+  margin-bottom:2.5rem;gap:1rem;
+}
+.section-header h2{
+  font-family:var(--serif);font-size:2.4rem;font-weight:400;
+  line-height:1.2;letter-spacing:-.01em;
+}
+.section-header h2 span{color:var(--accent)}
+.section-header .badge{
+  font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  background:var(--ink);color:#fff;padding:.4rem 1rem;border-radius:2rem;
+  white-space:nowrap;align-self:center;
+}
+
+.product-meta{
+  display:flex;gap:2.5rem;margin-bottom:2rem;flex-wrap:wrap;
+}
+.product-meta dt{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.2rem}
+.product-meta dd{font-size:.9rem;font-weight:500}
+
+/* SIZE GRID */
+.size-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(110px,1fr));
+  gap:8px;
+}
+.size-chip{
+  display:flex;align-items:center;justify-content:center;
+  padding:.65rem .5rem;
+  border:1px solid var(--border);
+  border-radius:6px;
+  font-size:.85rem;
+  font-weight:500;
+  letter-spacing:.02em;
+  background:#fff;
+  transition:all .15s ease;
+  cursor:default;
+}
+.size-chip:hover{
+  border-color:var(--accent);
+  color:var(--accent);
+  transform:translateY(-1px);
+  box-shadow:0 2px 8px rgba(196,75,43,.1);
+}
+.size-chip::before{
+  content:'';display:inline-block;width:8px;height:8px;
+  border-radius:1px;margin-right:6px;flex-shrink:0;
+}
+.size-chip.square::before{background:var(--gold)}
+.size-chip.standard::before{background:#5a8a4a}
+.size-chip.pano::before{background:#4a6e8a}
+
+/* ORIENTATION LEGEND */
+.orient-row{
+  display:flex;gap:1.2rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center;
+}
+.orient-dot{
+  display:flex;align-items:center;gap:5px;
+  font-size:.75rem;color:var(--muted);letter-spacing:.03em;
+}
+.orient-dot span{display:inline-block;width:8px;height:8px;border-radius:1px}
+.orient-dot.square span{background:var(--gold)}
+.orient-dot.standard span{background:#5a8a4a}
+.orient-dot.pano span{background:#4a6e8a}
+
+/* ART PREVIEW */
+.art-row{
+  display:grid;grid-template-columns:200px 1fr;gap:2rem;
+  align-items:start;margin-top:2.5rem;
+  padding:1.5rem;background:var(--warm-white);border-radius:10px;
+  border:1px solid var(--border);
+}
+.art-row img{width:100%;border-radius:6px;display:block}
+.art-row-text h3{font-family:var(--serif);font-size:1.4rem;font-weight:400;margin-bottom:.5rem}
+.art-row-text p{font-size:.85rem;color:var(--muted);line-height:1.6}
+
+/* QUICK REF TABLE */
+.quickref{
+  margin-top:3rem;
+  border:1px solid var(--border);border-radius:10px;overflow:hidden;
+}
+.quickref table{width:100%;border-collapse:collapse;font-size:.85rem}
+.quickref thead{background:var(--ink);color:#fff}
+.quickref th{padding:.8rem 1rem;text-align:left;font-weight:500;font-size:.75rem;letter-spacing:.06em;text-transform:uppercase}
+.quickref td{padding:.6rem 1rem;border-bottom:1px solid var(--border)}
+.quickref tr:last-child td{border-bottom:none}
+.quickref tbody tr:nth-child(even){background:rgba(0,0,0,.02)}
+.check{color:var(--accent);font-weight:700;font-size:1rem}
+.dash{color:var(--border);font-size:1rem}
+
+/* FOOTER */
+.footer{
+  padding:3rem;background:var(--ink);color:rgba(255,255,255,.5);
+  text-align:center;font-size:.8rem;
+}
+.footer a{color:var(--gold);text-decoration:none}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .header{padding:1rem 1.5rem}
+  .hero{grid-template-columns:1fr}
+  .hero-text{padding:2.5rem 1.5rem}
+  .hero-text h1{font-size:2.2rem}
+  .catalog-section{padding:2.5rem 1.5rem}
+  .section-header h2{font-size:1.8rem}
+  .art-row{grid-template-columns:1fr}
+  .size-grid{grid-template-columns:repeat(auto-fill,minmax(90px,1fr))}
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <img src="logo.png" alt="Danielle Cowdrey Art">
+  <span class="header-tag">Product &amp; Size Catalog</span>
+</header>
+
+<section class="hero">
+  <div class="hero-text">
+    <h1>Every piece,<br><em>every size.</em></h1>
+    <p>A complete guide to our available print formats and dimensions. Whether you're outfitting an entire gallery wall or selecting a single statement piece, this catalog has you covered.</p>
+  </div>
+  <div class="hero-img">
+    <img src="hero.png" alt="Danielle Cowdrey framed art print">
+  </div>
+</section>
+
+<!-- CANVAS -->
+<section class="catalog-section" id="canvas">
+  <div class="section-header">
+    <h2>Canvas <span>Prints</span></h2>
+    <span class="badge">46 sizes</span>
+  </div>
+
+  <dl class="product-meta">
+    <div><dt>Material</dt><dd>Poly-cotton canvas</dd></div>
+    <div><dt>Weight</dt><dd>10.15 oz/yd&sup2;</dd></div>
+    <div><dt>Depth</dt><dd>1.25&Prime;</dd></div>
+    <div><dt>Back</dt><dd>Open back</dd></div>
+    <div><dt>Hanging</dt><dd>Hardware attached</dd></div>
+    <div><dt>Sourced</dt><dd>Canada, UK, US</dd></div>
+  </dl>
+
+  <div class="orient-row">
+    <div class="orient-dot square"><span></span> Square</div>
+    <div class="orient-dot standard"><span></span> Standard</div>
+    <div class="orient-dot pano"><span></span> Panoramic (2:1+)</div>
+  </div>
+
+  <div class="size-grid">
+    <div class="size-chip square">6&times;6&Prime;</div>
+    <div class="size-chip square">8&times;8&Prime;</div>
+    <div class="size-chip standard">8&times;10&Prime;</div>
+    <div class="size-chip standard">8&times;12&Prime;</div>
+    <div class="size-chip standard">9&times;12&Prime;</div>
+    <div class="size-chip square">10&times;10&Prime;</div>
+    <div class="size-chip pano">10&times;20&Prime;</div>
+    <div class="size-chip standard">11&times;14&Prime;</div>
+    <div class="size-chip square">12&times;12&Prime;</div>
+    <div class="size-chip standard">12&times;16&Prime;</div>
+    <div class="size-chip standard">12&times;18&Prime;</div>
+    <div class="size-chip pano">12&times;24&Prime;</div>
+    <div class="size-chip pano">12&times;36&Prime;</div>
+    <div class="size-chip square">14&times;14&Prime;</div>
+    <div class="size-chip square">16&times;16&Prime;</div>
+    <div class="size-chip standard">16&times;20&Prime;</div>
+    <div class="size-chip standard">16&times;24&Prime;</div>
+    <div class="size-chip pano">16&times;32&Prime;</div>
+    <div class="size-chip pano">16&times;48&Prime;</div>
+    <div class="size-chip square">18&times;18&Prime;</div>
+    <div class="size-chip standard">18&times;24&Prime;</div>
+    <div class="size-chip standard">18&times;26&Prime;</div>
+    <div class="size-chip square">20&times;20&Prime;</div>
+    <div class="size-chip standard">20&times;24&Prime;</div>
+    <div class="size-chip standard">20&times;28&Prime;</div>
+    <div class="size-chip standard">20&times;30&Prime;</div>
+    <div class="size-chip pano">20&times;40&Prime;</div>
+    <div class="size-chip pano">20&times;60&Prime;</div>
+    <div class="size-chip square">24&times;24&Prime;</div>
+    <div class="size-chip standard">24&times;30&Prime;</div>
+    <div class="size-chip standard">24&times;32&Prime;</div>
+    <div class="size-chip standard">24&times;36&Prime;</div>
+    <div class="size-chip pano">24&times;48&Prime;</div>
+    <div class="size-chip square">26&times;26&Prime;</div>
+    <div class="size-chip standard">26&times;40&Prime;</div>
+    <div class="size-chip square">28&times;28&Prime;</div>
+    <div class="size-chip standard">28&times;40&Prime;</div>
+    <div class="size-chip square">30&times;30&Prime;</div>
+    <div class="size-chip standard">30&times;40&Prime;</div>
+    <div class="size-chip pano">30&times;60&Prime;</div>
+    <div class="size-chip square">32&times;32&Prime;</div>
+    <div class="size-chip standard">32&times;48&Prime;</div>
+    <div class="size-chip square">36&times;36&Prime;</div>
+    <div class="size-chip square">37&times;37&Prime;</div>
+    <div class="size-chip standard">40&times;55&Prime;</div>
+    <div class="size-chip standard">40&times;60&Prime;</div>
+  </div>
+
+  <div class="art-row">
+    <img src="art.jpg" alt="Rainbow Safari by Danielle Cowdrey">
+    <div class="art-row-text">
+      <h3>&ldquo;Rainbow Safari&rdquo;</h3>
+      <p>Every design is available across all 46 canvas sizes. Square formats are marked with a gold indicator. Canvas prints ship with rubber pads on the back corners and hanging hardware pre-attached &mdash; ready to hang right out of the box.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FRAMED CANVAS -->
+<section class="catalog-section" id="framed-canvas">
+  <div class="section-header">
+    <h2>Framed <span>Canvas</span></h2>
+    <span class="badge">13 sizes</span>
+  </div>
+
+  <dl class="product-meta">
+    <div><dt>Frame</dt><dd>Pine tree wood</dd></div>
+    <div><dt>Frame depth</dt><dd>1.25&Prime;</dd></div>
+    <div><dt>Canvas weight</dt><dd>10.15 oz/yd&sup2;</dd></div>
+    <div><dt>Back</dt><dd>Open back</dd></div>
+    <div><dt>Frame colors</dt><dd>Black, Natural, White</dd></div>
+    <div><dt>Hanging</dt><dd>Hardware attached</dd></div>
+  </dl>
+
+  <div class="orient-row">
+    <div class="orient-dot square"><span></span> Square</div>
+    <div class="orient-dot standard"><span></span> Standard</div>
+  </div>
+
+  <div class="size-grid">
+    <div class="size-chip standard">8&times;10&Prime;</div>
+    <div class="size-chip standard">9&times;12&Prime;</div>
+    <div class="size-chip standard">11&times;14&Prime;</div>
+    <div class="size-chip square">12&times;12&Prime;</div>
+    <div class="size-chip standard">12&times;16&Prime;</div>
+    <div class="size-chip standard">12&times;18&Prime;</div>
+    <div class="size-chip square">16&times;16&Prime;</div>
+    <div class="size-chip standard">16&times;20&Prime;</div>
+    <div class="size-chip standard">18&times;24&Prime;</div>
+    <div class="size-chip standard">20&times;28&Prime;</div>
+    <div class="size-chip standard">20&times;30&Prime;</div>
+    <div class="size-chip standard">24&times;32&Prime;</div>
+    <div class="size-chip standard">24&times;36&Prime;</div>
+  </div>
+</section>
+
+<!-- FRAMED POSTER -->
+<section class="catalog-section" id="framed-poster">
+  <div class="section-header">
+    <h2>Matte Paper Framed Poster <span>with Mat</span></h2>
+    <span class="badge">5 sizes</span>
+  </div>
+
+  <dl class="product-meta">
+    <div><dt>Frame</dt><dd>Ayous wood, 0.75&Prime;</dd></div>
+    <div><dt>Paper</dt><dd>Museum-quality matte, 189 g/m&sup2;</dd></div>
+    <div><dt>Paper thickness</dt><dd>10.3 mil</dd></div>
+    <div><dt>Front</dt><dd>Acrylite protector</dd></div>
+    <div><dt>Mat</dt><dd>White mat board</dd></div>
+    <div><dt>Frame colors</dt><dd>Black, Natural, White</dd></div>
+  </dl>
+
+  <div class="orient-row">
+    <div class="orient-dot standard"><span></span> Standard</div>
+  </div>
+
+  <div class="size-grid">
+    <div class="size-chip standard">12&times;16&Prime;</div>
+    <div class="size-chip standard">12&times;18&Prime;</div>
+    <div class="size-chip standard">16&times;20&Prime;</div>
+    <div class="size-chip standard">18&times;24&Prime;</div>
+    <div class="size-chip standard">24&times;36&Prime;</div>
+  </div>
+</section>
+
+<!-- QUICK REFERENCE -->
+<section class="catalog-section" id="quickref">
+  <div class="section-header">
+    <h2>Quick <span>Reference</span></h2>
+  </div>
+  <p style="font-size:.9rem;color:var(--muted);margin-bottom:1.5rem;">All sizes where at least one product is available. Sizes offered across all three formats are highlighted.</p>
+
+  <div class="quickref">
+    <table>
+      <thead>
+        <tr><th>Size</th><th>Canvas</th><th>Framed Canvas</th><th>Framed Poster</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>6&times;6&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>8&times;8&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>8&times;10&Prime;</td><td class="check">&check;</td><td class="check">&check;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>8&times;12&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>9&times;12&Prime;</td><td class="check">&check;</td><td class="check">&check;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>10&times;10&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>10&times;20&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>11&times;14&Prime;</td><td class="check">&check;</td><td class="check">&check;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>12&times;12&Prime;</td><td class="check">&check;</td><td class="check">&check;</td><td class="dash">&mdash;</td></tr>
+        <tr style="background:rgba(196,75,43,.06)"><td><strong>12&times;16&Prime;</strong></td><td class="check">&check;</td><td class="check">&check;</td><td class="check">&check;</td></tr>
+        <tr style="background:rgba(196,75,43,.06)"><td><strong>12&times;18&Prime;</strong></td><td class="check">&check;</td><td class="check">&check;</td><td class="check">&check;</td></tr>
+        <tr><td>12&times;24&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>12&times;36&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>14&times;14&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>16&times;16&Prime;</td><td class="check">&check;</td><td class="check">&check;</td><td class="dash">&mdash;</td></tr>
+        <tr style="background:rgba(196,75,43,.06)"><td><strong>16&times;20&Prime;</strong></td><td class="check">&check;</td><td class="check">&check;</td><td class="check">&check;</td></tr>
+        <tr><td>16&times;24&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>16&times;32&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>16&times;48&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>18&times;18&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr style="background:rgba(196,75,43,.06)"><td><strong>18&times;24&Prime;</strong></td><td class="check">&check;</td><td class="check">&check;</td><td class="check">&check;</td></tr>
+        <tr><td>18&times;26&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>20&times;20&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>20&times;24&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>20&times;28&Prime;</td><td class="check">&check;</td><td class="check">&check;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>20&times;30&Prime;</td><td class="check">&check;</td><td class="check">&check;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>20&times;40&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>20&times;60&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>24&times;24&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>24&times;30&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>24&times;32&Prime;</td><td class="check">&check;</td><td class="check">&check;</td><td class="dash">&mdash;</td></tr>
+        <tr style="background:rgba(196,75,43,.06)"><td><strong>24&times;36&Prime;</strong></td><td class="check">&check;</td><td class="check">&check;</td><td class="check">&check;</td></tr>
+        <tr><td>24&times;48&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>26&times;26&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>26&times;40&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>28&times;28&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>28&times;40&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>30&times;30&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>30&times;40&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>30&times;60&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>32&times;32&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>32&times;48&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>36&times;36&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>37&times;37&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>40&times;55&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+        <tr><td>40&times;60&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer class="footer">
+  <p>&copy; 2026 Danielle Cowdrey Art &mdash; <a href="https://daniellecowdrey.com">daniellecowdrey.com</a></p>
+  <p style="margin-top:.4rem;font-size:.7rem;">All sizes shown are print dimensions in inches. Available in horizontal &amp; vertical orientations where applicable.</p>
+</footer>
+
+</body>
+</html>

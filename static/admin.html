@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Gallery Catalog</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --ink:#1a1a1a;
+  --cream:#faf8f5;
+  --warm-white:#fff9f4;
+  --muted:#8a8580;
+  --accent:#c44b2b;
+  --gold:#b8943e;
+  --border:rgba(0,0,0,.08);
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'DM Sans','Helvetica Neue',sans-serif;
+  --green:#3a8a4a;
+  --blue:#4a6e8a;
+  --radius:8px;
+}
+html{font-size:16px}
+body{font-family:var(--sans);color:var(--ink);background:var(--cream);line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* Layout */
+.admin-shell{max-width:1100px;margin:0 auto;padding:2rem}
+.admin-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:2.5rem;padding-bottom:1.5rem;
+  border-bottom:1px solid var(--border);
+}
+.admin-header h1{font-family:var(--serif);font-size:2rem;font-weight:400}
+.admin-header h1 span{color:var(--accent)}
+.admin-header-actions{display:flex;gap:.75rem;align-items:center}
+.btn{
+  padding:.5rem 1.2rem;border:1px solid var(--border);border-radius:4px;
+  background:#fff;font-family:var(--sans);font-size:.82rem;font-weight:500;
+  cursor:pointer;transition:all .15s;color:var(--ink);text-decoration:none;
+}
+.btn:hover{border-color:var(--ink)}
+.btn-danger{color:var(--accent);border-color:rgba(196,75,43,.2)}
+.btn-danger:hover{background:rgba(196,75,43,.05);border-color:var(--accent)}
+.btn-solid{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn-solid:hover{background:var(--accent);border-color:var(--accent)}
+
+/* Login */
+.login-card{
+  max-width:360px;margin:8rem auto;
+  padding:2.5rem;background:var(--warm-white);
+  border:1px solid var(--border);border-radius:var(--radius);
+  text-align:center;
+}
+.login-card h2{font-family:var(--serif);font-size:1.6rem;font-weight:400;margin-bottom:1.5rem}
+.login-card input{
+  width:100%;padding:.7rem 1rem;margin-bottom:1rem;
+  border:1px solid var(--border);border-radius:5px;
+  font-family:var(--sans);font-size:.9rem;
+  text-align:center;
+}
+.login-card input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(196,75,43,.1)}
+.login-error{color:var(--accent);font-size:.82rem;margin-bottom:.75rem;display:none}
+
+/* Stats */
+.stats-row{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:1rem;margin-bottom:2.5rem;
+}
+.stat-card{
+  padding:1.2rem 1rem;background:var(--warm-white);
+  border:1px solid var(--border);border-radius:var(--radius);
+  text-align:center;
+}
+.stat-card .stat-num{font-size:1.8rem;font-weight:600;line-height:1.2}
+.stat-card .stat-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:.25rem}
+.stat-card.pending .stat-num{color:var(--gold)}
+.stat-card.reviewed .stat-num{color:var(--blue)}
+.stat-card.fulfilled .stat-num{color:var(--green)}
+
+/* Filters */
+.filter-row{
+  display:flex;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap;
+}
+.filter-btn{
+  padding:.4rem 1rem;border:1px solid var(--border);border-radius:2rem;
+  background:transparent;font-family:var(--sans);font-size:.78rem;font-weight:500;
+  cursor:pointer;transition:all .15s;color:var(--muted);
+}
+.filter-btn:hover{border-color:var(--ink);color:var(--ink)}
+.filter-btn.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* Request List */
+.request-list{display:flex;flex-direction:column;gap:.75rem}
+.request-card{
+  background:var(--warm-white);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+  transition:box-shadow .15s;
+}
+.request-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.request-card-header{
+  display:grid;grid-template-columns:1fr auto auto;
+  align-items:center;gap:1rem;
+  padding:1rem 1.25rem;cursor:pointer;
+}
+.request-card-header:hover{background:rgba(0,0,0,.01)}
+.request-name{font-weight:600;font-size:.92rem}
+.request-email{font-size:.8rem;color:var(--muted)}
+.request-date{font-size:.78rem;color:var(--muted);white-space:nowrap}
+.status-badge{
+  font-size:.7rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  padding:.3rem .8rem;border-radius:2rem;white-space:nowrap;
+}
+.status-badge.pending{background:rgba(184,148,62,.12);color:var(--gold)}
+.status-badge.reviewed{background:rgba(74,110,138,.12);color:var(--blue)}
+.status-badge.fulfilled{background:rgba(58,138,74,.12);color:var(--green)}
+.status-badge.archived{background:rgba(0,0,0,.06);color:var(--muted)}
+
+/* Expanded detail */
+.request-detail{
+  display:none;
+  padding:0 1.25rem 1.25rem;
+  border-top:1px solid var(--border);
+}
+.request-card.expanded .request-detail{display:block}
+.detail-section{margin-top:1rem}
+.detail-section h4{
+  font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--muted);margin-bottom:.5rem;
+}
+.detail-items{
+  border:1px solid var(--border);border-radius:6px;overflow:hidden;
+}
+.detail-items table{width:100%;border-collapse:collapse;font-size:.84rem}
+.detail-items th{
+  background:var(--ink);color:#fff;
+  padding:.5rem .8rem;text-align:left;
+  font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;font-weight:500;
+}
+.detail-items td{padding:.5rem .8rem;border-bottom:1px solid var(--border)}
+.detail-items tr:last-child td{border-bottom:none}
+.detail-items tbody tr:nth-child(even){background:rgba(0,0,0,.02)}
+.detail-notes{
+  font-size:.85rem;color:var(--muted);
+  background:rgba(0,0,0,.02);padding:.75rem 1rem;
+  border-radius:6px;margin-top:.5rem;
+  font-style:italic;white-space:pre-wrap;
+}
+.detail-contact{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:.5rem;font-size:.85rem;
+}
+.detail-contact dt{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.detail-contact dd{font-weight:500}
+
+/* Admin actions */
+.detail-actions{
+  display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;
+  margin-top:1.25rem;padding-top:1rem;
+  border-top:1px solid var(--border);
+}
+.detail-actions select{
+  padding:.4rem .8rem;border:1px solid var(--border);border-radius:5px;
+  font-family:var(--sans);font-size:.82rem;
+}
+.admin-notes-input{
+  flex:1;min-width:200px;
+  padding:.4rem .8rem;border:1px solid var(--border);border-radius:5px;
+  font-family:var(--sans);font-size:.82rem;
+}
+.admin-notes-input:focus{outline:none;border-color:var(--accent)}
+
+/* Empty state */
+.empty-state{
+  text-align:center;padding:4rem 2rem;color:var(--muted);
+}
+.empty-state h3{font-family:var(--serif);font-size:1.4rem;font-weight:400;margin-bottom:.5rem;color:var(--ink)}
+
+/* Responsive */
+@media(max-width:768px){
+  .admin-shell{padding:1.5rem}
+  .request-card-header{grid-template-columns:1fr;gap:.35rem}
+  .detail-actions{flex-direction:column;align-items:stretch}
+  .admin-notes-input{min-width:0}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginView">
+  <div class="login-card">
+    <h2>Admin Login</h2>
+    <p class="login-error" id="loginError">Invalid password. Please try again.</p>
+    <form id="loginForm">
+      <input type="password" id="loginPassword" placeholder="Password" required autocomplete="current-password">
+      <button type="submit" class="btn btn-solid" style="width:100%">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<!-- DASHBOARD (hidden until auth) -->
+<div id="dashboardView" style="display:none">
+  <div class="admin-shell">
+    <header class="admin-header">
+      <h1>Invoice <span>Requests</span></h1>
+      <div class="admin-header-actions">
+        <a href="/" class="btn">Back to Catalog</a>
+        <button class="btn btn-danger" id="logoutBtn">Logout</button>
+      </div>
+    </header>
+
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card"><div class="stat-num" id="statTotal">-</div><div class="stat-label">Total</div></div>
+      <div class="stat-card pending"><div class="stat-num" id="statPending">-</div><div class="stat-label">Pending</div></div>
+      <div class="stat-card reviewed"><div class="stat-num" id="statReviewed">-</div><div class="stat-label">Reviewed</div></div>
+      <div class="stat-card fulfilled"><div class="stat-num" id="statFulfilled">-</div><div class="stat-label">Fulfilled</div></div>
+      <div class="stat-card"><div class="stat-num" id="statItems">-</div><div class="stat-label">Total Items</div></div>
+    </div>
+
+    <div class="filter-row">
+      <button class="filter-btn active" data-filter="">All</button>
+      <button class="filter-btn" data-filter="pending">Pending</button>
+      <button class="filter-btn" data-filter="reviewed">Reviewed</button>
+      <button class="filter-btn" data-filter="fulfilled">Fulfilled</button>
+      <button class="filter-btn" data-filter="archived">Archived</button>
+    </div>
+
+    <div class="request-list" id="requestList">
+      <div class="empty-state">
+        <h3>No requests yet</h3>
+        <p>Invoice requests from the catalog will appear here.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '/api';
+let authToken = sessionStorage.getItem('admin_token') || '';
+let currentFilter = '';
+
+// --- Auth ---
+
+async function apiCall(path, options = {}) {
+  const headers = { 'Content-Type': 'application/json', ...options.headers };
+  if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+  const res = await fetch(`${API}${path}`, { ...options, headers });
+  if (res.status === 401) {
+    sessionStorage.removeItem('admin_token');
+    authToken = '';
+    showLogin();
+    throw new Error('Session expired');
+  }
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Request failed');
+  }
+  return res.json();
+}
+
+function showLogin() {
+  document.getElementById('loginView').style.display = '';
+  document.getElementById('dashboardView').style.display = 'none';
+}
+
+function showDashboard() {
+  document.getElementById('loginView').style.display = 'none';
+  document.getElementById('dashboardView').style.display = '';
+  loadStats();
+  loadRequests();
+}
+
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const pw = document.getElementById('loginPassword').value;
+  try {
+    const data = await apiCall('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ password: pw })
+    });
+    authToken = data.token;
+    sessionStorage.setItem('admin_token', authToken);
+    document.getElementById('loginError').style.display = 'none';
+    showDashboard();
+  } catch {
+    document.getElementById('loginError').style.display = '';
+  }
+});
+
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+  try { await apiCall('/auth/logout', { method: 'POST' }); } catch {}
+  sessionStorage.removeItem('admin_token');
+  authToken = '';
+  showLogin();
+});
+
+// --- Stats ---
+
+async function loadStats() {
+  try {
+    const s = await apiCall('/stats');
+    document.getElementById('statTotal').textContent = s.total_requests;
+    document.getElementById('statPending').textContent = s.pending;
+    document.getElementById('statReviewed').textContent = s.reviewed;
+    document.getElementById('statFulfilled').textContent = s.fulfilled;
+    document.getElementById('statItems').textContent = s.total_items;
+  } catch {}
+}
+
+// --- Filters ---
+
+document.querySelector('.filter-row').addEventListener('click', (e) => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentFilter = btn.dataset.filter;
+  loadRequests();
+});
+
+// --- Requests ---
+
+async function loadRequests() {
+  const list = document.getElementById('requestList');
+  try {
+    const params = currentFilter ? `?status=${currentFilter}` : '';
+    const data = await apiCall(`/requests${params}`);
+
+    if (data.requests.length === 0) {
+      list.innerHTML = `
+        <div class="empty-state">
+          <h3>No ${currentFilter || ''} requests</h3>
+          <p>Invoice requests from the catalog will appear here.</p>
+        </div>`;
+      return;
+    }
+
+    list.innerHTML = data.requests.map(r => renderRequestCard(r)).join('');
+    // Attach expand listeners
+    list.querySelectorAll('.request-card-header').forEach(h => {
+      h.addEventListener('click', () => h.closest('.request-card').classList.toggle('expanded'));
+    });
+    // Attach action listeners
+    list.querySelectorAll('.save-status-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const card = btn.closest('.request-card');
+        const id = card.dataset.id;
+        const status = card.querySelector('.status-select').value;
+        const notes = card.querySelector('.admin-notes-input').value;
+        try {
+          await apiCall(`/requests/${id}`, {
+            method: 'PATCH',
+            body: JSON.stringify({ status, admin_notes: notes || null })
+          });
+          loadStats();
+          loadRequests();
+        } catch (err) { alert(err.message); }
+      });
+    });
+    list.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('Delete this request permanently?')) return;
+        const id = btn.closest('.request-card').dataset.id;
+        try {
+          await apiCall(`/requests/${id}`, { method: 'DELETE' });
+          loadStats();
+          loadRequests();
+        } catch (err) { alert(err.message); }
+      });
+    });
+  } catch {}
+}
+
+function renderRequestCard(r) {
+  const date = new Date(r.created_at + 'Z').toLocaleDateString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit'
+  });
+  const itemCount = r.items.reduce((sum, i) => sum + i.quantity, 0);
+  const itemRows = r.items.map(i => `
+    <tr>
+      <td>${esc(i.art_name)}</td>
+      <td>${esc(i.product_type)}</td>
+      <td>${esc(i.size)}</td>
+      <td style="text-align:center">${i.quantity}</td>
+    </tr>`).join('');
+
+  let contactHTML = `<dt>Name</dt><dd>${esc(r.name)}</dd><dt>Email</dt><dd>${esc(r.email)}</dd>`;
+  if (r.phone) contactHTML += `<dt>Phone</dt><dd>${esc(r.phone)}</dd>`;
+  if (r.company) contactHTML += `<dt>Company</dt><dd>${esc(r.company)}</dd>`;
+
+  return `
+    <div class="request-card" data-id="${r.id}">
+      <div class="request-card-header">
+        <div>
+          <div class="request-name">${esc(r.name)} <span style="font-weight:400;color:var(--muted);font-size:.82rem">&middot; ${itemCount} item${itemCount !== 1 ? 's' : ''}</span></div>
+          <div class="request-email">${esc(r.email)}</div>
+        </div>
+        <span class="status-badge ${r.status}">${r.status}</span>
+        <span class="request-date">${date}</span>
+      </div>
+      <div class="request-detail">
+        <div class="detail-section">
+          <h4>Contact</h4>
+          <dl class="detail-contact">${contactHTML}</dl>
+        </div>
+        <div class="detail-section">
+          <h4>Items</h4>
+          <div class="detail-items">
+            <table>
+              <thead><tr><th>Artwork</th><th>Product</th><th>Size</th><th style="text-align:center">Qty</th></tr></thead>
+              <tbody>${itemRows}</tbody>
+            </table>
+          </div>
+        </div>
+        ${r.notes ? `<div class="detail-section"><h4>Customer Notes</h4><div class="detail-notes">${esc(r.notes)}</div></div>` : ''}
+        ${r.admin_notes ? `<div class="detail-section"><h4>Admin Notes</h4><div class="detail-notes">${esc(r.admin_notes)}</div></div>` : ''}
+        <div class="detail-actions">
+          <select class="status-select" aria-label="Update status">
+            <option value="pending"${r.status==='pending'?' selected':''}>Pending</option>
+            <option value="reviewed"${r.status==='reviewed'?' selected':''}>Reviewed</option>
+            <option value="fulfilled"${r.status==='fulfilled'?' selected':''}>Fulfilled</option>
+            <option value="archived"${r.status==='archived'?' selected':''}>Archived</option>
+          </select>
+          <input class="admin-notes-input" type="text" placeholder="Admin notes..." value="${esc(r.admin_notes || '')}">
+          <button class="btn btn-solid save-status-btn">Save</button>
+          <button class="btn btn-danger delete-btn">Delete</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function esc(str) {
+  if (!str) return '';
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+// --- Init ---
+if (authToken) {
+  // Verify existing token
+  apiCall('/stats').then(() => showDashboard()).catch(() => showLogin());
+} else {
+  showLogin();
+}
+</script>
+</body>
+</html>
