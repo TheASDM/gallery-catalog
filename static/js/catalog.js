@@ -17,7 +17,7 @@ const PRODUCT_TYPES = {
     '8×10"','9×12"','11×14"','12×12"','12×16"','12×18"','16×16"',
     '16×20"','18×24"','20×28"','20×30"','24×32"','24×36"'
   ],
-  'Framed Poster with Mat': [
+  'Framed Print with Mat': [
     '12×16"','12×18"','16×20"','18×24"','24×36"'
   ]
 };
@@ -41,13 +41,10 @@ const ART_THUMBNAILS = {
 
 // State
 let selectedArt = new Set();
-let lineItemId = 0;
 
 // DOM refs
 const artGrid = document.getElementById('artGrid');
-const lineItemsWrapper = document.getElementById('lineItemsWrapper');
-const lineItemsContainer = document.getElementById('lineItems');
-const addVariantBtn = document.getElementById('addVariantBtn');
+const artSelections = document.getElementById('artSelections');
 const requestForm = document.getElementById('requestForm');
 const submitBtn = document.getElementById('submitBtn');
 const requestSuccess = document.getElementById('requestSuccess');
@@ -62,52 +59,85 @@ artGrid.addEventListener('click', (e) => {
   if (selectedArt.has(artName)) {
     selectedArt.delete(artName);
     card.classList.remove('selected');
-    removeLineItemsByArt(artName);
+    removeArtSelection(artName);
   } else {
     selectedArt.add(artName);
     card.classList.add('selected');
-    addLineItem(artName);
+    addArtSelection(artName);
   }
 
   updateVisibility();
 });
 
-// --- Add line item ---
-function addLineItem(artName, productType, size, quantity) {
-  lineItemId++;
-  const id = lineItemId;
+// --- Create a per-art selection block ---
+function addArtSelection(artName) {
   const thumb = ART_THUMBNAILS[artName] || '';
+
+  const block = document.createElement('div');
+  block.className = 'art-selection';
+  block.dataset.art = artName;
+
+  block.innerHTML = `
+    <div class="art-selection-header">
+      <img class="art-selection-thumb" src="${thumb}" alt="${artName}">
+      <span class="art-selection-name">${artName}</span>
+      <button type="button" class="art-selection-remove">Remove</button>
+    </div>
+    <div class="art-selection-items"></div>
+    <button type="button" class="add-line-btn">+ Add another format / size</button>
+  `;
+
+  // Wire remove button
+  block.querySelector('.art-selection-remove').addEventListener('click', () => {
+    selectedArt.delete(artName);
+    const card = artGrid.querySelector(`[data-art="${CSS.escape(artName)}"]`);
+    if (card) card.classList.remove('selected');
+    block.remove();
+    updateVisibility();
+  });
+
+  // Wire "add another" button
+  block.querySelector('.add-line-btn').addEventListener('click', () => {
+    addLineItem(block, artName);
+  });
+
+  artSelections.appendChild(block);
+
+  // Add the first line item automatically
+  addLineItem(block, artName);
+
+  // Scroll the new block into view
+  block.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// --- Add a line item to a specific art block ---
+function addLineItem(block, artName) {
+  const container = block.querySelector('.art-selection-items');
+
+  const typeOptions = Object.keys(PRODUCT_TYPES)
+    .map(t => `<option value="${t}">${t}</option>`)
+    .join('');
+
+  const firstType = Object.keys(PRODUCT_TYPES)[0];
+  const sizeOptions = PRODUCT_TYPES[firstType]
+    .map(s => `<option value="${s}">${s}</option>`)
+    .join('');
 
   const div = document.createElement('div');
   div.className = 'line-item';
-  div.dataset.id = id;
-  div.dataset.art = artName;
-
-  // Build product type options
-  const typeOptions = Object.keys(PRODUCT_TYPES)
-    .map(t => `<option value="${t}"${t === productType ? ' selected' : ''}>${t}</option>`)
-    .join('');
-
-  // Build size options for initial product type
-  const initialType = productType || Object.keys(PRODUCT_TYPES)[0];
-  const sizeOptions = PRODUCT_TYPES[initialType]
-    .map(s => `<option value="${s}"${s === size ? ' selected' : ''}>${s}</option>`)
-    .join('');
 
   div.innerHTML = `
-    <img class="line-item-thumb" src="${thumb}" alt="${artName}">
-    <span class="line-item-art">${artName}</span>
     <select class="line-item-type" aria-label="Product type for ${artName}">
       ${typeOptions}
     </select>
     <select class="line-item-size" aria-label="Size for ${artName}">
       ${sizeOptions}
     </select>
-    <input type="number" class="line-item-qty" value="${quantity || 1}" min="1" max="999" aria-label="Quantity">
+    <input type="number" class="line-item-qty" value="1" min="1" max="999" aria-label="Quantity">
     <button type="button" class="line-item-remove" aria-label="Remove item" title="Remove">&times;</button>
   `;
 
-  // Wire up product type → size cascade
+  // Wire product type → size cascade
   const typeSelect = div.querySelector('.line-item-type');
   const sizeSelect = div.querySelector('.line-item-size');
 
@@ -116,41 +146,31 @@ function addLineItem(artName, productType, size, quantity) {
     sizeSelect.innerHTML = sizes.map(s => `<option value="${s}">${s}</option>`).join('');
   });
 
-  // Wire up remove button
+  // Wire remove — if last item in block, remove the whole art selection
   div.querySelector('.line-item-remove').addEventListener('click', () => {
     div.remove();
-    // If no more line items for this art, deselect the card
-    const remaining = lineItemsContainer.querySelectorAll(`[data-art="${CSS.escape(artName)}"]`);
-    if (remaining.length === 0) {
+    if (container.children.length === 0) {
       selectedArt.delete(artName);
       const card = artGrid.querySelector(`[data-art="${CSS.escape(artName)}"]`);
       if (card) card.classList.remove('selected');
+      block.remove();
+      updateVisibility();
     }
-    updateVisibility();
   });
 
-  lineItemsContainer.appendChild(div);
+  container.appendChild(div);
 }
 
-// --- Remove all line items for a given art name ---
-function removeLineItemsByArt(artName) {
-  const items = lineItemsContainer.querySelectorAll(`[data-art="${CSS.escape(artName)}"]`);
-  items.forEach(el => el.remove());
+// --- Remove art selection block ---
+function removeArtSelection(artName) {
+  const block = artSelections.querySelector(`[data-art="${CSS.escape(artName)}"]`);
+  if (block) block.remove();
 }
 
-// --- "Add another line item" button ---
-addVariantBtn.addEventListener('click', () => {
-  if (selectedArt.size === 0) return;
-  // Default to the first selected art piece
-  const firstArt = [...selectedArt][0];
-  addLineItem(firstArt);
-});
-
-// --- Show/hide sections ---
+// --- Show/hide contact form ---
 function updateVisibility() {
-  const hasItems = lineItemsContainer.children.length > 0;
-  lineItemsWrapper.hidden = !hasItems;
-  requestForm.hidden = !hasItems;
+  const hasSelections = artSelections.children.length > 0;
+  requestForm.hidden = !hasSelections;
 }
 
 // --- Form submission ---
@@ -158,14 +178,18 @@ requestForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const items = [];
-  const lineItems = lineItemsContainer.querySelectorAll('.line-item');
-  for (const li of lineItems) {
-    items.push({
-      art_name: li.dataset.art,
-      product_type: li.querySelector('.line-item-type').value,
-      size: li.querySelector('.line-item-size').value,
-      quantity: parseInt(li.querySelector('.line-item-qty').value, 10) || 1
-    });
+  const blocks = artSelections.querySelectorAll('.art-selection');
+  for (const block of blocks) {
+    const artName = block.dataset.art;
+    const lineItems = block.querySelectorAll('.line-item');
+    for (const li of lineItems) {
+      items.push({
+        art_name: artName,
+        product_type: li.querySelector('.line-item-type').value,
+        size: li.querySelector('.line-item-size').value,
+        quantity: parseInt(li.querySelector('.line-item-qty').value, 10) || 1
+      });
+    }
   }
 
   if (items.length === 0) return;
@@ -196,8 +220,8 @@ requestForm.addEventListener('submit', async (e) => {
     }
 
     // Success
-    document.getElementById('request').querySelector('.art-grid').hidden = true;
-    lineItemsWrapper.hidden = true;
+    artGrid.hidden = true;
+    artSelections.hidden = true;
     requestForm.hidden = true;
     requestSuccess.hidden = false;
     requestSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -214,14 +238,12 @@ requestForm.addEventListener('submit', async (e) => {
 // --- Reset form ---
 resetBtn.addEventListener('click', () => {
   selectedArt.clear();
-  lineItemsContainer.innerHTML = '';
-  lineItemId = 0;
+  artSelections.innerHTML = '';
   requestForm.reset();
   requestSuccess.hidden = true;
 
-  // Deselect all art cards and show the grid
   artGrid.querySelectorAll('.art-card').forEach(c => c.classList.remove('selected'));
-  document.getElementById('request').querySelector('.art-grid').hidden = false;
-  lineItemsWrapper.hidden = true;
+  artGrid.hidden = false;
+  artSelections.hidden = false;
   requestForm.hidden = true;
 });

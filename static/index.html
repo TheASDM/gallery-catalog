@@ -15,7 +15,7 @@
   <nav class="header-nav">
     <a href="#canvas">Canvas</a>
     <a href="#framed-canvas">Framed</a>
-    <a href="#framed-poster">Poster</a>
+    <a href="#framed-print">Print</a>
     <a href="#quickref">Sizes</a>
     <a href="#request" class="nav-cta">Request Invoice</a>
   </nav>
@@ -150,10 +150,10 @@
   </div>
 </section>
 
-<!-- FRAMED POSTER -->
-<section class="catalog-section" id="framed-poster">
+<!-- FRAMED PRINT -->
+<section class="catalog-section" id="framed-print">
   <div class="section-header">
-    <h2>Matte Paper Framed Poster <span>with Mat</span></h2>
+    <h2>Matte Paper Framed Print <span>with Mat</span></h2>
     <span class="badge">5 sizes</span>
   </div>
 
@@ -184,12 +184,12 @@
   <div class="section-header">
     <h2>Quick <span>Reference</span></h2>
   </div>
-  <p style="font-size:.9rem;color:var(--muted);margin-bottom:1.5rem;">All sizes where at least one product is available. Sizes offered across all three formats are highlighted.</p>
+  <p style="font-size:1rem;color:var(--muted);margin-bottom:1.5rem;">All sizes where at least one product is available. Sizes offered across all three formats are highlighted.</p>
 
   <div class="quickref">
     <table>
       <thead>
-        <tr><th>Size</th><th>Canvas</th><th>Framed Canvas</th><th>Framed Poster</th></tr>
+        <tr><th>Size</th><th>Canvas</th><th>Framed Canvas</th><th>Framed Print</th></tr>
       </thead>
       <tbody>
         <tr><td>6&times;6&Prime;</td><td class="check">&check;</td><td class="dash">&mdash;</td><td class="dash">&mdash;</td></tr>
@@ -352,12 +352,8 @@
     </button>
   </div>
 
-  <!-- Line Items (populated by JS) -->
-  <div class="line-items-wrapper" id="lineItemsWrapper" hidden>
-    <h3 class="line-items-heading">Your Selections</h3>
-    <div class="line-items" id="lineItems"></div>
-    <button type="button" class="add-variant-btn" id="addVariantBtn">+ Add another line item</button>
-  </div>
+  <!-- Per-art selections (populated by JS) -->
+  <div class="art-selections" id="artSelections"></div>
 
   <!-- Contact Form -->
   <form class="request-form" id="requestForm" hidden>
@@ -403,7 +399,7 @@
 
 <footer class="footer">
   <p>&copy; 2026 Danielle Cowdrey Art &mdash; <a href="https://daniellecowdrey.com">daniellecowdrey.com</a></p>
-  <p style="margin-top:.4rem;font-size:.7rem;">All sizes shown are print dimensions in inches. Available in horizontal &amp; vertical orientations where applicable.</p>
+  <p style="margin-top:.5rem;font-size:.85rem;">All sizes shown are print dimensions in inches. Available in horizontal &amp; vertical orientations where applicable.</p>
 </footer>
 
 <script src="/static/js/catalog.js"></script>
