@@ -1,12 +1,11 @@
+import logging
 import os
 import secrets
-import hashlib
-from datetime import datetime
+import time
 
 from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 
 from .database import init_db, get_db
 from .models import (
@@ -17,17 +16,50 @@ from .models import (
     LoginRequest,
 )
 
+logger = logging.getLogger(__name__)
+
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "changeme")
-SESSION_TOKENS: set[str] = set()
+SESSION_TOKENS: dict[str, float] = {}  # token -> creation timestamp
+SESSION_MAX_AGE = 86400  # 24 hours
 
 app = FastAPI(title="Danielle Cowdrey Art — Gallery Catalog", docs_url=None, redoc_url=None)
 
 STATIC_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
 
 
+# ── Rate limiter (in-memory sliding window) ──────────────────────────────────
+
+_rate_limits: dict[str, list[float]] = {}
+
+
+def _is_rate_limited(key: str, max_requests: int, window: int = 3600) -> bool:
+    """Check if a key has exceeded max_requests in the last window seconds."""
+    now = time.time()
+    times = _rate_limits.get(key, [])
+    times = [t for t in times if now - t < window]
+    if len(times) >= max_requests:
+        _rate_limits[key] = times
+        return True
+    times.append(now)
+    _rate_limits[key] = times
+    return False
+
+
+def _client_ip(request: Request) -> str:
+    forwarded = request.headers.get("X-Forwarded-For", "")
+    if forwarded:
+        return forwarded.split(",")[-1].strip()  # rightmost = set by proxy
+    return request.client.host if request.client else "unknown"
+
+
 @app.on_event("startup")
 def startup():
     init_db()
+    if ADMIN_PASSWORD == "changeme":
+        logger.warning(
+            "ADMIN_PASSWORD is set to the default 'changeme'. "
+            "Set a strong password via the ADMIN_PASSWORD environment variable."
+        )
 
 
 # --- Auth helpers ---
@@ -37,7 +69,9 @@ def require_admin(request: Request):
     if not auth.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Not authenticated")
     token = auth[7:]
-    if token not in SESSION_TOKENS:
+    created_at = SESSION_TOKENS.get(token)
+    if created_at is None or (time.time() - created_at) > SESSION_MAX_AGE:
+        SESSION_TOKENS.pop(token, None)
         raise HTTPException(status_code=401, detail="Invalid or expired session")
     return token
 
@@ -45,24 +79,30 @@ def require_admin(request: Request):
 # --- Auth endpoints ---
 
 @app.post("/api/auth/login")
-def login(body: LoginRequest):
+def login(body: LoginRequest, request: Request):
+    ip = _client_ip(request)
+    if _is_rate_limited(f"login:{ip}", max_requests=5, window=900):
+        raise HTTPException(status_code=429, detail="Too many login attempts. Try again later.")
     if not secrets.compare_digest(body.password, ADMIN_PASSWORD):
         raise HTTPException(status_code=401, detail="Invalid password")
     token = secrets.token_urlsafe(32)
-    SESSION_TOKENS.add(token)
+    SESSION_TOKENS[token] = time.time()
     return {"token": token}
 
 
 @app.post("/api/auth/logout")
 def logout(token: str = Depends(require_admin)):
-    SESSION_TOKENS.discard(token)
+    SESSION_TOKENS.pop(token, None)
     return {"ok": True}
 
 
 # --- Public: submit invoice request ---
 
 @app.post("/api/requests", status_code=201)
-def create_request(body: InvoiceRequest):
+def create_request(body: InvoiceRequest, request: Request):
+    ip = _client_ip(request)
+    if _is_rate_limited(f"request:{ip}", max_requests=5):
+        raise HTTPException(status_code=429, detail="Too many requests. Try again later.")
     with get_db() as conn:
         cursor = conn.execute(
             """INSERT INTO requests (name, email, phone, company, notes)
